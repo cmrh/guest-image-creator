@@ -11,4 +11,4 @@ is used to generate simple OVF metadata for a qcow2 image.
 The generic metadata consists of a limited CPU, memory, etc. that is enough
 for importing the resulting OVF in RHEV-M's export domain.
 
-Launch it with "--help" for instructions.
+Launch it with `--help` for instructions.
