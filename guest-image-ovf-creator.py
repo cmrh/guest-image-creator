@@ -131,15 +131,6 @@ ovf:required="false" xsi:type="ovf:OperatingSystemSection_Type">
         <rasd:LastModified>%(timestamp)s</rasd:LastModified>
       </Item>
       <Item>
-        <rasd:Caption>Ethernet 0 rhevm</rasd:Caption>
-        <rasd:InstanceId>3</rasd:InstanceId>
-        <rasd:ResourceType>10</rasd:ResourceType>
-        <rasd:ResourceSubType>3</rasd:ResourceSubType>
-        <rasd:Connection>rhevm</rasd:Connection>
-        <rasd:Name>eth0</rasd:Name>
-        <rasd:speed>1000</rasd:speed>
-      </Item>
-      <Item>
         <rasd:Caption>Graphics</rasd:Caption>
         <rasd:InstanceId>5</rasd:InstanceId>
         <rasd:ResourceType>20</rasd:ResourceType>
@@ -227,19 +218,17 @@ class OVFCreator(Base):
     def _parse_options(self):
         parser = optparse.OptionParser()
         parser.add_option("--disk", type="string", dest="disk",
-                          metavar="FILE", help="Disk image to create ovf"
-                          "archive from")
+                          metavar="FILE", help="Disk image to create ovf from")
         parser.add_option("--output", type="string", dest="output",
-                          metavar="DIRECTORY", help="Disk image to create ovf"
-                          "archive from")
+                          metavar="DIRECTORY", help="Directory to store the generated files")
         parser.add_option("--release", type="string", dest="release",
                           help="Release String")
         parser.add_option("--symlink", action="store_true", dest="symlink",
                           metavar="FILE", default=False,
-                          help="Create a gzip archive")
-        parser.add_option("--gzip", action="store_true", dest="gzip",
+                          help="Create symlink instead of copying the image")
+        parser.add_option("--ovf", action="store_true", dest="ovf",
                           metavar="FILE", default=False,
-                          help="Create a gzip archive")
+                          help="Create an ovf archive")
         (self._options, args) = parser.parse_args()
         if not self._options.disk:
             raise RuntimeError("An input disk image must be defined")
@@ -331,7 +320,7 @@ class OVFCreator(Base):
                 shutil.copy(self._options.disk, self._disk_dest)
             else:
                 os.symlink(self._options.disk, self._disk_dest)
-            if self._options.gzip:
+            if self._options.ovf:
                 self._logger.info("Creating OVF Archive")
                 archive = tarfile.open(self._image_name + ".ovf", "w|gz")
                 archive.add(self._images_dir, arcname="images")
@@ -364,7 +353,7 @@ class OVFCreator(Base):
         except Exception as e:
             self._logger.exception('Error: OVF Archive Creation Failed: %s', e)
         finally:
-            if self._options.gzip:
+            if self._options.ovf:
                 self._cleanup()
             sys.exit(0)
 
